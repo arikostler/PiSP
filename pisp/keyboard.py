@@ -13,17 +13,15 @@ device = uinput.Device([
 	uinput.KEY_BACKSPACE,
 	uinput.KEY_ENTER,	
 	uinput.KEY_J,
-	uinput.REL_X,
-	uinput.REL_Y,
-	uinput.BTN_LEFT,
-	uinput.BTN_RIGHT
+	uinput.KEY_UP,
+	uinput.KEY_DOWN,
+	uinput.KEY_LEFT,
+	uinput.KEY_RIGHT
 	])
 
 km = {
-	#'a':uinput.KEY_A,
-	#'b':uinput.KEY_B,
-	'a':uinput.BTN_LEFT,
-	'b':uinput.BTN_RIGHT,
+	'a':uinput.KEY_A,
+	'b':uinput.KEY_B,
 	'x':uinput.KEY_X,
 	'y':uinput.KEY_Y,
 	'l':uinput.KEY_L,
@@ -31,8 +29,10 @@ km = {
 	'select':uinput.KEY_BACKSPACE,
 	'start':uinput.KEY_ENTER,
 	'joySel':uinput.KEY_J,
-	'joy_x':uinput.REL_X,
-	'joy_y':uinput.REL_Y
+	'up':uinput.KEY_UP,
+	'down':uinput.KEY_DOWN,
+	'left':uinput.KEY_LEFT,
+	'right':uinput.KEY_RIGHT
 	}
 
 GPIO.setmode(GPIO.BCM)
@@ -108,8 +108,26 @@ try:
 		y = arduinoMap(joy_y_value, 0, 1023, -10, 10)
 		y = y*-1
 		#print("X: "+str(x)+" Y: "+str(y))
-		device.emit(km['joy_x'], x)
-		device.emit(km['joy_y'], y)
+		if x <= -5:
+			device.emit(km['left'], 1)
+		else:
+			device.emit(km['left'], 0)
+		
+		if x >= 5:
+			device.emit(km['right'], 1)
+		else:
+			device.emit(km['right'], 0)
+
+		if y <= -5:
+			device.emit(km['up'], 1)
+		else:
+			device.emit(km['up'], 0)
+
+		if y >= 5:
+			device.emit(km['down'], 1)
+		else:
+			device.emit(km['down'], 0)
+
 		time.sleep(.02)
 finally:
 	GPIO.cleanup()

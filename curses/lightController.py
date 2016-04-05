@@ -2,18 +2,23 @@ import curses
 import os
 import subprocess
 import commands
+import urllib2
 
 screen = curses.initscr()
 curses.noecho()
 dims = screen.getmaxyx()
 
 options = 	[
-			"Start Desktop Env",
-			"Show IP Address",
-			"Albert Light Control",
-			"Exit to Console",
-			"Shutdown"
+			"Circuit One",
+			"Circuit Two",
+			"Get Status",
+			"Blackout",
+			"All ON",
+			"Exit"
 			]
+
+circuitOneStatus = "UNKNOWN"
+circuitTwoStatus = "UNKNOWN"
 
 def centerHorizontal(string):
 	return (dims[1]/2) - (len(string)/2)
@@ -26,31 +31,42 @@ def drawMenu(currentOption):
 			screen.addstr(topOfList+x, centerHorizontal(options[x]), options[x], curses.A_STANDOUT)
 		else:
 			screen.addstr(topOfList+x, centerHorizontal(options[x]), options[x])
-			
+
+def drawSystemStatus():
+	screen.addstr(0,0,"Circuit ONE: "+circuitOneStatus)
+	screen.addstr(1,0,"Circuit TWO: "+circuitTwoStatus)
+
+def updateSystemStatus():
+	global circuitOneStatus
+	global circuitTwoStatus
+	screen.clear()
+	screen.addstr(0,0,'UPDATING SYSTEM STATUS. PLEASE WAIT...')
+	screen.refresh()
+	circuitOneStatus = str(getCircuitStatus(10))
+	circuitTwoStatus = str(getCircuitStatus(11))
+
+def getCircuitStatus(pin):
+	response = urllib2.urlopen("http://arikostler.com/getState.php?pin="+str(pin))
+	return response.read()
+
+def quickMessage(msg):
+	screen.clear()
+	screen.addstr(0,0, msg)
+	screen.getch()
+
 def selectOption(op):
 	if op == 0:
-		os.system("startx")
+		quickMessage("not yet implemented")
 	elif op == 1:
-		os.system("clear")
-		ipaddr = commands.getoutput("hostname -I")
-		screen.addstr(0,0, "IP ADDRESS")
-		if " " not in ipaddr:
-			screen.addstr(1,0, str(ipaddr))
-		else:
-			screen.addstr(1,0, str(ipaddr).split(" ")[0])
-			screen.addstr(2,0, str(ipaddr).split(" ")[1])
-		screen.getch()
+		quickMessage("not yet implemented")
 	elif op == 2:
-		os.system("python /home/pi/Documents/python-scripts/curses/lightController.py")
+		updateSystemStatus()
 	elif op == 3:
-		cleanExit()
+		quickMessage("not yet implemented")
 	elif op == 4:
-		os.system("clear")
-		screen.addstr(1,1,"SHUTDOWN")
-		screen.addstr(2,1,"Are you sure? (y/N)")
-		ch = screen.getch()
-		if ch == ord('y'):
-			os.system("sudo shutdown -h now")
+		quickMessage("not yet implemented")
+	elif op == 5:
+		cleanExit()
 		
 
 def cleanExit():
@@ -62,8 +78,7 @@ q = -1
 active = 0
 while q != ord('q') and q != ord('l'):
 	drawMenu(active)
-	#screen.addstr(0,0,str(active))
-	#screen.addstr(1,0,str(q))
+	drawSystemStatus()
 	screen.move(dims[0]-1, dims[1]-1)
 	screen.refresh()
 

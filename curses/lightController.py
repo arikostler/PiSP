@@ -33,8 +33,8 @@ def drawMenu(currentOption):
 			screen.addstr(topOfList+x, centerHorizontal(options[x]), options[x])
 
 def drawSystemStatus():
-	screen.addstr(0,0,"Circuit ONE: "+circuitOneStatus)
-	screen.addstr(1,0,"Circuit TWO: "+circuitTwoStatus)
+	screen.addstr(0,0,"Circuit ONE: "+str(circuitOneStatus))
+	screen.addstr(1,0,"Circuit TWO: "+str(circuitTwoStatus))
 
 def updateSystemStatus():
 	global circuitOneStatus
@@ -54,17 +54,62 @@ def quickMessage(msg):
 	screen.addstr(0,0, msg)
 	screen.getch()
 
+def toggleCircuit(pin):
+	global circuitOneStatus
+	global circuitTwoStatus
+	if pin == 10:
+		if circuitOneStatus == 1:
+			turnOn(pin)
+			circuitOneStatus = 0
+		else:
+			turnOff(pin)
+			circuitOneStatus = 1
+
+	elif pin == 11:
+		if circuitTwoStatus == 1:
+			turnOn(pin)
+			circuitTwoStatus = 0
+		else:
+			turnOff(pin)
+			circuitTwoStatus = 1
+
+def turnOn(pin):
+	response = urllib2.urlopen("http://arikostler.com/on.php?pin="+str(pin))
+
+def turnOff(pin):
+	response = urllib2.urlopen("http://arikostler.com/off.php?pin="+str(pin))
+
+def blackout():
+	turnOff(10)
+	turnOff(11)
+	pinStates(1, 1)
+
+def allOn():
+	turnOn(10)
+	turnOn(11)
+	pinStates(0,0)
+
+def pinStates(one, two):
+	global circuitOneStatus
+	global circuitTwoStatus
+	circuitOneStatus = one
+	circuitTwoStatus = two
+
 def selectOption(op):
 	if op == 0:
-		quickMessage("not yet implemented")
+		#quickMessage("not yet implemented")
+		toggleCircuit(10)
 	elif op == 1:
-		quickMessage("not yet implemented")
+		#quickMessage("not yet implemented")
+		toggleCircuit(11)
 	elif op == 2:
 		updateSystemStatus()
 	elif op == 3:
-		quickMessage("not yet implemented")
+		#quickMessage("not yet implemented")
+		blackout()
 	elif op == 4:
-		quickMessage("not yet implemented")
+		#quickMessage("not yet implemented")
+		allOn()
 	elif op == 5:
 		cleanExit()
 		
